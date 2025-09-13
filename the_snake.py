@@ -105,24 +105,10 @@ class Snake(GameObject):
         x, y = self.get_head_position()
         # Распаковка кортежа координат головы змейки
         delta_x, delta_y = self.direction
-        # if self.direction == UP or self.direction == DOWN:
-        #     if y + delta_y * GRID_SIZE > SCREEN_HEIGHT:
-        #         y = 0
-        #     elif y + delta_y * GRID_SIZE < 0:
-        #         y = SCREEN_HEIGHT
-        #     else:
-        #         y = y + delta_y * GRID_SIZE
-        # Обработка выхода головы за границу экрана
+
         if self.direction == UP or self.direction == DOWN:
             y = (y + delta_y * GRID_SIZE + SCREEN_HEIGHT) % SCREEN_HEIGHT
 
-        # elif self.direction == RIGHT or self.direction == LEFT:
-        #     if x + delta_x * GRID_SIZE > SCREEN_WIDTH:
-        #         x = 0
-        #     elif x + delta_x * GRID_SIZE < 0:
-        #         x = SCREEN_WIDTH
-        #     else:
-        #         x = x + delta_x * GRID_SIZE
         elif self.direction == RIGHT or self.direction == LEFT:
             x = (x + delta_x * GRID_SIZE + SCREEN_WIDTH) % SCREEN_WIDTH
         next_position = (x, y)

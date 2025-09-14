@@ -23,6 +23,9 @@ BORDER_COLOR = (93, 216, 228)
 # Цвет яблока
 APPLE_COLOR = (255, 0, 0)
 
+# Цвет камня
+ROCK_COLOR = (192, 192, 192)
+
 # Цвет змейки
 SNAKE_COLOR = (0, 255, 0)
 
@@ -60,13 +63,13 @@ class Apple(GameObject):
         self.body_color = APPLE_COLOR
         self.randomize_position()
 
-    def randomize_position(self, restricted_area=SCREEN_CENTER):
+    def randomize_position(self, *args):
         """Метод рандомизации координат яблока"""
         new_position = (
             ((randint(0, GRID_WIDTH - 1)) * GRID_SIZE),
             (randint(0, GRID_HEIGHT - 1)) * GRID_SIZE,
         )
-        if new_position not in restricted_area:
+        if new_position not in SCREEN_CENTER and new_position not in args:
             self.position = new_position
 
     def draw(self):
@@ -74,6 +77,32 @@ class Apple(GameObject):
         rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
         pygame.draw.rect(screen, self.body_color, rect)
         pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
+
+
+class Rock(GameObject):
+    """Создаем подкласс Камень"""
+
+    def __init__(self):
+        super().__init__()
+        self.body_color = ROCK_COLOR
+        self.positions = []
+        self.randomize_position()
+
+    def draw(self):
+        """Метод отрисовки камня"""
+        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, self.body_color, rect)
+        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
+
+    def randomize_position(self, *args):
+        """Метод рандомизации координат камня"""
+        new_position = (
+            ((randint(0, GRID_WIDTH - 1)) * GRID_SIZE),
+            (randint(0, GRID_HEIGHT - 1)) * GRID_SIZE,
+        )
+        if new_position not in SCREEN_CENTER and new_position not in args:
+            self.position = new_position
+        self.positions.append(new_position)
 
 
 class Snake(GameObject):
@@ -169,19 +198,32 @@ def main():
     # Тут нужно создать экземпляры классов.
     apple = Apple()
     snake = Snake()
+    rock = Rock()
+    rock_created = False
     while True:
         clock.tick(SPEED)
         snake.draw()
         apple.draw()
         snake.move()
+        rock.draw()
         handle_keys(snake)
+        if snake.lenght % 10 == 0 and rock_created is False:
+            rock.randomize_position(snake.positions, apple.position)
+            rock.draw()
+            rock_created = True
         if apple.position == snake.get_head_position():
             snake.lenght += 1
-            apple.randomize_position(snake.positions)
-        if snake.get_head_position() in snake.positions[1:]:
+            apple.randomize_position(snake.positions, rock.positions)
+            if snake.lenght % 10 != 0:
+                rock_created = False
+        if (
+            snake.get_head_position() in snake.positions[1:]
+            or snake.get_head_position() in rock.positions
+        ):
             snake.reset()
+            rock.positions = []
             apple.randomize_position(snake.positions)
-
+            rock.randomize_position()
         pygame.display.update()
 
 

@@ -52,7 +52,9 @@ class GameObject:
 
     def draw(self):
         """Метод отрисовки"""
-        pass
+        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, self.body_color, rect)
+        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
 
 class Apple(GameObject):
@@ -72,12 +74,6 @@ class Apple(GameObject):
         if new_position not in SCREEN_CENTER and new_position not in args:
             self.position = new_position
 
-    def draw(self):
-        """Метод отрисовки яблока"""
-        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
-        pygame.draw.rect(screen, self.body_color, rect)
-        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
-
 
 class Rock(GameObject):
     """Создаем подкласс Камень"""
@@ -87,12 +83,6 @@ class Rock(GameObject):
         self.body_color = ROCK_COLOR
         self.positions = []
         self.randomize_position()
-
-    def draw(self):
-        """Метод отрисовки камня"""
-        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
-        pygame.draw.rect(screen, self.body_color, rect)
-        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
     def randomize_position(self, *args):
         """Метод рандомизации координат камня"""
@@ -124,7 +114,7 @@ class Snake(GameObject):
             self.next_direction = None
 
     def get_head_position(self):
-        """Метод определения координат "головы" змейки"""
+        """Метод определения координат 'головы' змейки"""
         return self.positions[0]
 
     def move(self):
@@ -222,8 +212,8 @@ def main():
         ):
             snake.reset()
             rock.positions = []
-            apple.randomize_position(snake.positions)
-            rock.randomize_position()
+            apple.randomize_position(snake.positions, rock.positions)
+            rock.randomize_position(snake.positions, rock.positions)
         pygame.display.update()
 
 

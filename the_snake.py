@@ -78,7 +78,7 @@ class Apple(GameObject):
                 ((randint(0, GRID_WIDTH - 1)) * GRID_SIZE),
                 (randint(0, GRID_HEIGHT - 1)) * GRID_SIZE,
             )
-            if self.position not in restricted_area:
+            if self.position not in self.restricted_area:
                 return self.position
             break
 

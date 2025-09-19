@@ -45,15 +45,17 @@ clock = pg.time.Clock()
 class GameObject:
     """Создаем класс ИгровойОбъект"""
 
-    def __init__(self, position=SCREEN_CENTER, body_color=None) -> None:
+    def __init__(
+        self,
+        position: tuple = SCREEN_CENTER,
+        body_color=None
+    ) -> None:
         self.position = position
         self.body_color = body_color
 
     def draw(self):
-        """Метод отрисовки"""
-        rect = pg.Rect(self.position, (GRID_SIZE, GRID_SIZE))
-        pg.draw.rect(screen, self.body_color, rect)
-        pg.draw.rect(screen, BORDER_COLOR, rect, 1)
+        """Заглушка метода отрисовки родительского класса"""
+        pass
 
 
 class Apple(GameObject):
@@ -61,9 +63,9 @@ class Apple(GameObject):
 
     def __init__(
         self,
-        position=SCREEN_CENTER,
-        body_color=APPLE_COLOR,
-        restricted_area=SCREEN_CENTER,
+        position: tuple = SCREEN_CENTER,
+        body_color: tuple = APPLE_COLOR,
+        restricted_area=None,
     ):
         super().__init__(position, body_color)
         self.restricted_area = restricted_area or []
@@ -72,14 +74,21 @@ class Apple(GameObject):
     def randomize_position(self, restricted_area):
         """Метод рандомизации координат яблока"""
         while True:
-            new_position = (
+            self.position = (
                 ((randint(0, GRID_WIDTH - 1)) * GRID_SIZE),
                 (randint(0, GRID_HEIGHT - 1)) * GRID_SIZE,
             )
-            if new_position not in restricted_area:
-                self.position = new_position
+            if self.position not in restricted_area:
                 return self.position
             break
+
+    def draw(self, body_color=None):
+        """Метод отрисовки"""
+        rect = pg.Rect(self.position, (GRID_SIZE, GRID_SIZE))
+        if not body_color:
+            pg.draw.rect(screen, self.body_color, rect)
+        if body_color != BOARD_BACKGROUND_COLOR:
+            pg.draw.rect(screen, BORDER_COLOR, rect, 1)
 
 
 class Rock(Apple):
@@ -87,18 +96,19 @@ class Rock(Apple):
 
     def __init__(
         self,
-        position=SCREEN_CENTER,
-        body_color=ROCK_COLOR,
-        restricted_area=SCREEN_CENTER,
+        position: tuple = SCREEN_CENTER,
+        body_color: tuple = ROCK_COLOR,
+        restricted_area=None,
     ):
         super().__init__(position, body_color, restricted_area)
-        self.randomize_position(restricted_area)
 
 
 class Snake(GameObject):
     """Создаем подкласс Змейка"""
 
-    def __init__(self, position=SCREEN_CENTER, body_color=SNAKE_COLOR):
+    def __init__(
+        self, position: tuple = SCREEN_CENTER, body_color: tuple = SNAKE_COLOR
+    ):
         super().__init__(position, body_color)
         self.reset()
         self.direction = RIGHT
@@ -125,9 +135,11 @@ class Snake(GameObject):
         # Удаление последнего элемента из списка позиций
         # змейки, если яблоко не съедено
         self.positions.insert(0, next_position)
-        self.last = self.positions.pop() if (
-            self.lenght < len(self.positions)
-        ) else None
+        self.last = (
+            self.positions.pop() if (
+                self.lenght < len(self.positions)
+            ) else None
+        )
 
     def reset(self):
         """Метод сброса игры"""
@@ -140,11 +152,6 @@ class Snake(GameObject):
 
     def draw(self):
         """Метод отрисовки змейки"""
-        for position in self.positions[:-1]:
-            rect = pg.Rect(position, (GRID_SIZE, GRID_SIZE))
-            pg.draw.rect(screen, self.body_color, rect)
-            pg.draw.rect(screen, BORDER_COLOR, rect, 1)
-
         # Отрисовка головы змейки
         head_rect = pg.Rect(self.positions[0], (GRID_SIZE, GRID_SIZE))
         pg.draw.rect(screen, self.body_color, head_rect)
@@ -179,8 +186,8 @@ def main():
     pg.init()
     # Тут нужно создать экземпляры классов.
     snake = Snake()
-    apple = Apple(*snake.positions)
-    rock = Rock([apple.position, *snake.positions])
+    apple = Apple(restricted_area=snake.positions)
+    rock = Rock(restricted_area=[apple.position, snake.positions])
     rock_created = False
     rock.positions = [rock.position]
     while True:

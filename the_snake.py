@@ -54,8 +54,16 @@ class GameObject:
         self.body_color = body_color
 
     def draw(self):
-        """Заглушка метода отрисовки родительского класса"""
-        pass
+        """Абстрактный метод отрисовки родительского класса"""
+
+    def draw_cell(self, position: tuple, body_color=None):
+        """Метод отрисовки одной клетки"""
+        rect = pg.Rect(position, (GRID_SIZE, GRID_SIZE))
+        if not body_color:
+            pg.draw.rect(screen, self.body_color, rect)
+            pg.draw.rect(screen, BORDER_COLOR, rect, 1)
+        else:
+            pg.draw.rect(screen, body_color, rect)
 
 
 class Apple(GameObject):
@@ -68,7 +76,7 @@ class Apple(GameObject):
         restricted_area=None,
     ):
         super().__init__(position, body_color)
-        self.restricted_area = restricted_area or []
+        restricted_area = restricted_area or []
         self.randomize_position(restricted_area)
 
     def randomize_position(self, restricted_area):
@@ -78,17 +86,12 @@ class Apple(GameObject):
                 ((randint(0, GRID_WIDTH - 1)) * GRID_SIZE),
                 (randint(0, GRID_HEIGHT - 1)) * GRID_SIZE,
             )
-            if self.position not in self.restricted_area:
+            if self.position not in restricted_area:
                 return self.position
-            break
 
-    def draw(self, body_color=None):
-        """Метод отрисовки"""
-        rect = pg.Rect(self.position, (GRID_SIZE, GRID_SIZE))
-        if not body_color:
-            pg.draw.rect(screen, self.body_color, rect)
-        if body_color != BOARD_BACKGROUND_COLOR:
-            pg.draw.rect(screen, BORDER_COLOR, rect, 1)
+    def draw(self):
+        """Метод отрисовки класса Яблоко"""
+        self.draw_cell(self.position)
 
 
 class Rock(Apple):
@@ -153,14 +156,10 @@ class Snake(GameObject):
     def draw(self):
         """Метод отрисовки змейки"""
         # Отрисовка головы змейки
-        head_rect = pg.Rect(self.positions[0], (GRID_SIZE, GRID_SIZE))
-        pg.draw.rect(screen, self.body_color, head_rect)
-        pg.draw.rect(screen, BORDER_COLOR, head_rect, 1)
-
+        self.draw_cell(self.positions[0])
         # Затирание последнего сегмента
         if self.last:
-            last_rect = pg.Rect(self.last, (GRID_SIZE, GRID_SIZE))
-            pg.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
+            self.draw_cell(self.last, BOARD_BACKGROUND_COLOR)
 
 
 def handle_keys(game_object):
